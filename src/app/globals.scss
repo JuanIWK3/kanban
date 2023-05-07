@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.dialog {
+  @apply card hidden;
+
+  &[open] {
+    @apply flex;
+  }
+}

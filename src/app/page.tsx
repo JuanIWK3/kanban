@@ -1,6 +1,8 @@
 import Column from "@/components/Column";
 
 export default function Home() {
+  const product = null;
+
   return (
     <main className="flex flex-col min-h-screen p-8">
       <div className="header">
