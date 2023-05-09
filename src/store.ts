@@ -1,5 +1,6 @@
 import { StateCreator, create } from "zustand";
 import { Task, TaskState } from "./types";
+import { devtools, persist } from "zustand/middleware";
 
 interface TasksState {
   tasks: Task[];
@@ -31,31 +32,34 @@ const initialTasks: Task[] = [
   },
 ];
 
-const store: StateCreator<TasksState, [], []> = (set) => ({
-  tasks: initialTasks,
-  draggedTask: null,
-  addTask: (task: Task) =>
-    set((state) => ({
-      tasks: [...state.tasks, task],
+export const useTasksStore = create<TasksState>()(
+  persist(
+    devtools((set) => ({
+      tasks: initialTasks,
+      draggedTask: null,
+      addTask: (task: Task) =>
+        set((state) => ({ tasks: [...state.tasks, task] }), false, "addTask"),
+      deleteTask: (title: string) =>
+        set((state) => ({
+          tasks: state.tasks.filter((task) => task.title !== title),
+        })),
+      updateTask: (title: string, task: Task) =>
+        set((state) => ({
+          tasks: state.tasks.map((t) => (t.title === title ? task : t)),
+        })),
+      setDraggedTask: (title: string | null) =>
+        set({
+          draggedTask: title,
+        }),
+      moveTask: (title: string, status: TaskState) =>
+        set((state) => ({
+          tasks: state.tasks.map((t) =>
+            t.title === title ? { ...t, state: status } : t
+          ),
+        })),
     })),
-  deleteTask: (title: string) =>
-    set((state) => ({
-      tasks: state.tasks.filter((task) => task.title !== title),
-    })),
-  updateTask: (title: string, task: Task) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) => (t.title === title ? task : t)),
-    })),
-  setDraggedTask: (title: string | null) =>
-    set({
-      draggedTask: title,
-    }),
-  moveTask: (title: string, status: TaskState) =>
-    set((state) => ({
-      tasks: state.tasks.map((t) =>
-        t.title === title ? { ...t, state: status } : t
-      ),
-    })),
-});
-
-export const useTasksStore = create<TasksState>(store);
+    {
+      name: "tasks-storage",
+    }
+  )
+);

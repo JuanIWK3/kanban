@@ -26,7 +26,7 @@ export default function Column({ state }: ColumnProps) {
 
   return (
     <div
-      className={`column card max-w-lg ${canDrop ? "dragging" : ""}`}
+      className={`column h-full card max-w-lg ${canDrop ? "dragging" : ""}`}
       onDragOver={(e) => {
         e.preventDefault();
         setCanDrop(true);

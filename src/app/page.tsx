@@ -19,7 +19,7 @@ export default function Home() {
         </div>
         <h1 className="text-4xl font-bold">Kanban Board</h1>
       </div>
-      <div className="flex">
+      <div className="flex flex-1">
         <Column state="TO DO" />
         <Column state="IN PROGRESS" />
         <Column state="DONE" />
