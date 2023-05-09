@@ -1,48 +1,60 @@
 import { StateCreator, create } from "zustand";
-import { Tasks } from "./types";
+import { Task, TaskState } from "./types";
 
 interface TasksState {
-  tasks: Tasks[];
-  addTask: (task: Tasks) => void;
-  deleteTask: (id: number) => void;
-  updateTask: (id: number, task: Tasks) => void;
+  tasks: Task[];
+  draggedTask: string | null;
+  addTask: (task: Task) => void;
+  deleteTask: (title: string) => void;
+  updateTask: (title: string, task: Task) => void;
+  setDraggedTask: (title: string | null) => void;
+  moveTask: (title: string, state: TaskState) => void;
 }
 
+const initialTasks: Task[] = [
+  {
+    title:
+      "Learn TypeScript and React together with Zustand and GraphQL and Next.js and TailwindCSS and Vercel and FaunaDB and Auth0",
+    state: "TO DO",
+  },
+  {
+    title: "Learn React",
+    state: "IN PROGRESS",
+  },
+  {
+    title: "Learn Next.js",
+    state: "DONE",
+  },
+  {
+    title: "Learn GraphQL",
+    state: "TO DO",
+  },
+];
+
 const store: StateCreator<TasksState, [], []> = (set) => ({
-  tasks: [
-    {
-      id: 1,
-      title:
-        "Learn TypeScript and React together with Zustand and GraphQL and Next.js and TailwindCSS and Vercel and FaunaDB and Auth0",
-      state: "TO DO",
-    },
-    {
-      id: 2,
-      title: "Learn React",
-      state: "IN PROGRESS",
-    },
-    {
-      id: 3,
-      title: "Learn Next.js",
-      state: "DONE",
-    },
-    {
-      id: 4,
-      title: "Learn GraphQL",
-      state: "TO DO",
-    },
-  ],
-  addTask: (task: Tasks) =>
+  tasks: initialTasks,
+  draggedTask: null,
+  addTask: (task: Task) =>
     set((state) => ({
       tasks: [...state.tasks, task],
     })),
-  deleteTask: (id: number) =>
+  deleteTask: (title: string) =>
     set((state) => ({
-      tasks: state.tasks.filter((task) => task.id !== id),
+      tasks: state.tasks.filter((task) => task.title !== title),
     })),
-  updateTask: (id: number, task: Tasks) =>
+  updateTask: (title: string, task: Task) =>
     set((state) => ({
-      tasks: state.tasks.map((t) => (t.id === id ? task : t)),
+      tasks: state.tasks.map((t) => (t.title === title ? task : t)),
+    })),
+  setDraggedTask: (title: string | null) =>
+    set({
+      draggedTask: title,
+    }),
+  moveTask: (title: string, status: TaskState) =>
+    set((state) => ({
+      tasks: state.tasks.map((t) =>
+        t.title === title ? { ...t, state: status } : t
+      ),
     })),
 });
 

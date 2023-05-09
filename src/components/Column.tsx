@@ -2,10 +2,9 @@
 
 import { Task } from "@/components/Task";
 import { useTasksStore } from "@/store";
+import { TaskState } from "@/types";
 import { useRef, useState } from "react";
 import { shallow } from "zustand/shallow";
-
-type TaskState = "TO DO" | "IN PROGRESS" | "DONE";
 
 interface ColumnProps {
   state: TaskState;
@@ -20,16 +19,38 @@ export default function Column({ state }: ColumnProps) {
     (store) => store.tasks.filter((task) => task.state === state),
     shallow
   );
+  const setDraggedTask = useTasksStore((store) => store.setDraggedTask);
+  const draggedTaskTitle = useTasksStore((store) => store.draggedTask);
+  const moveTask = useTasksStore((store) => store.moveTask);
+  const [canDrop, setCanDrop] = useState(false);
 
   return (
-    <div className="card max-w-lg">
+    <div
+      className={`column card max-w-lg ${canDrop ? "dragging" : ""}`}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setCanDrop(true);
+      }}
+      onDrop={(e) => {
+        if (!draggedTaskTitle) return;
+        if (tasks.find((task) => task.title === draggedTaskTitle)) return;
+        moveTask(draggedTaskTitle, state);
+        setDraggedTask(null);
+        setCanDrop(false);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        console.log("leave");
+        setCanDrop(false);
+      }}
+    >
       <div className="card-body">
         <div className="card-title">
           <p>{state}</p>
           <NewTaskModal state={state} />
         </div>
         {tasks.map((task) => (
-          <Task key={task.id} taskId={task.id} />
+          <Task key={task.title} title={task.title} />
         ))}
       </div>
     </div>
@@ -38,15 +59,11 @@ export default function Column({ state }: ColumnProps) {
 
 const NewTaskModal = ({ state }: ModalProps) => {
   const addTask = useTasksStore((store) => store.addTask);
-  const numTasks = useTasksStore().tasks.length;
-
   const [title, setTitle] = useState("");
-
   const addNewTask = (state: TaskState, title: string) => {
     if (title === "") return;
 
     addTask({
-      id: numTasks + 1,
       state,
       title,
     });

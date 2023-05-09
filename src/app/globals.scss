@@ -9,3 +9,29 @@
     @apply flex;
   }
 }
+
+.column {
+  border: dashed 2px transparent;
+
+  &.dragging {
+    border: dashed 2px #ccc;
+  }
+
+  transition: all 0.2s ease-in-out;
+
+  &.dropped {
+    animation: bounce 0.5s ease-in-out;
+  }
+}
+
+@keyframes bounce {
+  0% {
+    transform: translateY(-10px);
+  }
+  50% {
+    transform: translateY(0px);
+  }
+  100% {
+    transform: translateY(-10px);
+  }
+}
